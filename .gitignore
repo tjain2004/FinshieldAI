@@ -1,13 +1,30 @@
-models/random_forest.pkl
-featured/featured_transactions.csv
-featured/featured_with_graph.csv
-preprocessed/X_train.csv
-preprocessed/X_test.csv
-preprocessed/X_train_smote.csv
-preprocessed/y_train_smote.csv
-data/
+# ── Python / Jupyter ───────────────────────────────
 __pycache__/
-*.pyc
-.env
-*.log
+*.py[cod]
 .ipynb_checkpoints/
+.env
+.venv/
+venv/
+*.log
+
+# ── OS / editor ────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/
+
+# ── Large data (over GitHub's 100 MB file limit) ───
+# Re-create them by running the notebooks in order (see README).
+data/featured/*.csv
+data/preprocessed/*.csv
+data/precomputed/*.npz
+data/precomputed/new_txn_index.json
+
+results/final_ensemble_risk_scores.csv
+results/master_risk_scores.csv
+results/graph_features.csv
+results/graph_node_analysis.csv
+results/xgb_predictions.csv
+results/analyst_audit_log.jsonl
+

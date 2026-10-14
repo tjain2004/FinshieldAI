@@ -3,8 +3,8 @@ services:
     name: finshield-ai
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --workers 1 --timeout 120 --bind 0.0.0.0:$PORT
+    startCommand: gunicorn --chdir dashboard new:app --workers 1 --threads 4 --timeout 180 --bind 0.0.0.0:$PORT
     plan: free
     envVars:
       - key: PYTHON_VERSION
-        value: 3.10.0
+        value: 3.11.9
