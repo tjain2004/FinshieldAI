@@ -19,7 +19,9 @@ and maps the linked accounts, **mule chains** and **suspicious hubs** behind eve
 
 <br/>
 
-[**The unique part**](#-the-unique-part--follow-the-money) ·
+[Problem](#-the-problem) ·
+[Solution](#-how-finshield-ai-solves-it) ·
+[**The unique part**](#%EF%B8%8F-the-unique-part--follow-the-money) ·
 [Features](#-what-you-get) ·
 [Screenshots](#-screenshots) ·
 [Results](#-results) ·
@@ -30,6 +32,37 @@ and maps the linked accounts, **mule chains** and **suspicious hubs** behind eve
 [Future: Agentic AI](#-future-scope--finshield-agents)
 
 </div>
+
+---
+
+## 🚨 The problem
+
+Criminals launder an estimated **2–5 % of global GDP every year** ([UNODC](https://www.unodc.org/unodc/en/money-laundering/overview.html)). Banks are expected to catch it, but the tools they use make that hard:
+
+<table>
+<tr>
+<td width="25%" valign="top" align="center"><h3>🔍</h3><b>A needle in a haystack</b><br/><sub>Only 5,177 of 5,078,336 transactions are laundering, 1 in 979. Flag too much and analysts drown; flag too little and the crime gets through.</sub></td>
+<td width="25%" valign="top" align="center"><h3>🕸️</h3><b>Laundering hides in networks</b><br/><sub>Money is split and passed through chains of <i>mule</i> accounts. Each single payment looks normal, so models that score one row at a time miss the pattern.</sub></td>
+<td width="25%" valign="top" align="center"><h3>⬛</h3><b>Black-box scores</b><br/><sub>"Risk 0.87" isn't something an analyst can act on, or a regulator can accept. Every alert needs a reason.</sub></td>
+<td width="25%" valign="top" align="center"><h3>⏳</h3><b>Slow investigations</b><br/><sub>Tracing linked accounts, checking history and writing the Suspicious Activity Report means jumping between tools for every case.</sub></td>
+</tr>
+</table>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/problem_solution_dark.svg">
+  <img src="docs/assets/problem_solution.svg" alt="The problem: each payment looks harmless on its own. The fix: the network shows the ring" width="100%">
+</picture>
+
+---
+
+## 💡 How FinShield AI solves it
+
+| The problem | What FinShield AI does |
+|---|---|
+| 🔍 **Needle in a haystack** | 7 ML models plus LSTM and CNN-1D are trained on 30 behavioural features. The champion **XGBoost reaches AUC-ROC 0.973**, and a calibrated **Risk Engine** turns 5.08M scores into LOW / MEDIUM / HIGH / CRITICAL tiers. |
+| 🕸️ **Laundering hides in networks** | A **graph of all 515K accounts** (PageRank, cycles, communities, mule scores). **One click on any account or transaction maps every linked account**, so you can follow the money hop by hop. |
+| ⬛ **Black-box scores** | **SHAP** explains every decision in plain English ("ACH payment, 4 transfers this hour…"), both in the User Portal and in the Workbench's *Why flagged?* tab. |
+| ⏳ **Slow investigations** | The **Investigation Workbench** puts the alert queue, case file, SHAP, the linked-account map, account history, an **auto-drafted SAR** and an **audit log** in one screen. |
 
 ---
 
@@ -52,35 +85,27 @@ appears.** Click any of them and the map re-centres there, so you can walk the r
 
 </div>
 
+<div align="center">
+
+| 🔴 **Red node** | 🟠 **Orange ring** | 🟢 **Green edge** / 🔵 **blue edge** | 🏷️ **Edge label** | 👆 **Click a node** |
+|:---:|:---:|:---:|:---:|:---:|
+| account in a *suspicious community* | account flagged as a **mule** | money **in** / money **out** | amount moved on that link | re-centre the map there |
+
+</div>
+
+#### Why it matters: a real finding from the dataset
+
 <table>
 <tr>
-<td width="50%" valign="top">
-
-#### What you're looking at
-| On the map | Meaning |
-|---|---|
-| 🔴 **Red node** | account inside a *suspicious community* (graph clustering) |
-| 🟠 **Orange ring** | account flagged as a **mule** (fan-in + fan-out pattern) |
-| 🟢 **Green / 🔵 blue edge** | money **in** / money **out** |
-| **Edge label** | how much moved on that link (+ other currencies) |
-| **Click a node** | re-centre the network on that account |
-
-</td>
-<td width="50%" valign="top">
-
-#### Why it matters — a real finding
-ACC-448952 and ACC-845 have **27 and 9 labelled laundering
-transactions**, yet **none** of them crossed the alert threshold
-on their own. They're scored LOW or MEDIUM one row at a time.
-
-On the map they light up immediately. 8 of 448952's 10 busiest
-counterparties are flagged mules, and the money loops back
-(878 → 448952). **The ring is visible in the graph even where the
-single-transaction score misses it.**
-
-</td>
+<td width="25%" align="center"><h2>27</h2><sub>labelled laundering transactions at <b>ACC-448952</b></sub></td>
+<td width="25%" align="center"><h2>0</h2><sub>of them reached the alert threshold. Each scored LOW or MEDIUM on its own</sub></td>
+<td width="25%" align="center"><h2>8 / 10</h2><sub>of its busiest counterparties are flagged <b>mule accounts</b></sub></td>
+<td width="25%" align="center"><h2>3 clicks</h2><sub>to see the ring close: 445736 → 448952 → 845 → 878 → back to 448952</sub></td>
 </tr>
 </table>
+
+> **The single-transaction score misses this ring. The network view shows it immediately.** That's why FinShield AI is built around the graph.
+
 
 <div align="center">
 
@@ -205,15 +230,17 @@ single-transaction score misses it.**
 
 ## 🏗️ System architecture
 
-<div align="center">
-<img src="docs/assets/architecture.svg" alt="System architecture" width="100%"/>
-</div>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/architecture_dark.svg">
+  <img src="docs/assets/architecture.svg" alt="System architecture" width="100%">
+</picture>
 
 <details>
 <summary><b>How the serving layer is put together</b></summary>
 
 - **`dashboard/app.py`** is the core backend. It holds a registry of every model and result file and serves the overview, the 11 notebook tabs, live prediction and the chart server.
-- **`dashboard/new.py`** is the entry point. It *imports* `app.py` instead of copying it, adds the User Portal and Investigation Workbench APIs, and injects `new.html` + `new.js` into the page.
+- **`dashboard/new.py`** *imports* `app.py` instead of copying it, adds the User Portal and Investigation Workbench APIs, and injects `new.html` + `new.js` into the page.
+- **`new1/new1.py`** is the entry point for the new design. It imports `new.py` and adds the header with four main tabs (Overview · User Portal · Investigation Workbench · Live Prediction), notebook sub-tabs 01–10, a ⌘K / Ctrl+K command palette and deep links.
 - A **transaction index** over all 5,078,336 rows (numpy arrays + byte offsets into the CSV) builds in the background on first start, is cached in `data/precomputed/`, and rebuilds itself if a source file changes.
 - Analyst actions are appended to `results/analyst_audit_log.jsonl`, so every decision has a trail.
 
@@ -223,9 +250,10 @@ single-transaction score misses it.**
 
 ## 🔄 Project pipeline
 
-<div align="center">
-<img src="docs/assets/pipeline.svg" alt="Project pipeline" width="100%"/>
-</div>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/pipeline_dark.svg">
+  <img src="docs/assets/pipeline.svg" alt="Project pipeline" width="100%">
+</picture>
 
 | # | Notebook | What it does | Main output |
 |:-:|---|---|---|
@@ -244,17 +272,18 @@ single-transaction score misses it.**
 
 ## 🧭 User flow
 
-<div align="center">
-<img src="docs/assets/user_flow.svg" alt="User flow" width="100%"/>
-</div>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/user_flow_dark.svg">
+  <img src="docs/assets/user_flow.svg" alt="User flow" width="100%">
+</picture>
 
 ---
 
-## 📁 Folder structure
+## 📁 GitHub folder structure
 
 ```
-FinShieldAI/
-├── 📓 notebooks/                    # the full pipeline, run 01 → 10
+FinshieldAI/
+├── 📓 notebooks/                         10 notebooks: the full pipeline, run 01 → 10
 │   ├── 01_data_understanding_and_cleaning.ipynb
 │   ├── 02_exploratory_data_analysis.ipynb
 │   ├── 03_feature_engineering.ipynb
@@ -266,50 +295,78 @@ FinShieldAI/
 │   ├── 09_cnn_deep_learning.ipynb
 │   └── 10_risk_scoring_engine.ipynb
 │
-├── 🖥️ dashboard/                    # the web app
-│   ├── new.py                       # ▶ entry point — python dashboard/new.py
-│   ├── app.py                       # core backend (imported by new.py)
-│   ├── new.html                     # User Portal + Investigation Workbench UI
-│   ├── new.js                       # front-end logic for the new tabs
-│   ├── templates/dashboard.html     # base dashboard page
-│   └── static/                      # dashboard.js · chart.umd.min.js
+├── 🎨 new1/                              ▶ new design (entry point)
+│   ├── new1.py                           python new1/new1.py
+│   ├── new1.html                         header, main tabs, sub-tabs, command palette (styles)
+│   ├── new1.js                           navigation, ⌘K palette, shortcuts, deep links
+│   └── logo.svg                          FinShield AI logo + favicon
 │
-├── 🧠 models/                       # 23 trained artifacts (.pkl / .pt)
-├── 📊 results/                      # metrics, risk scores, alerts (.csv)
-│   └── charts/                      # 37 charts produced by the notebooks
-├── 🗄️ data/                         # cleaned, featured, preprocessed, precomputed
-├── 🛠️ scripts/precompute_transactions.py
-├── 📚 docs/                         # README assets, screenshots, presentation
-│   ├── assets/                      # diagrams (SVG) + demo GIFs
-│   └── screenshots/
+├── 🖥️ dashboard/                         backend + original pages
+│   ├── app.py                            core API: models, results, 11 notebook tabs
+│   ├── new.py                            User Portal + Investigation Workbench APIs
+│   ├── new.html  ·  new.js               Portal + Workbench UI (Cytoscape.js network)
+│   ├── templates/dashboard.html          base page
+│   └── static/                           dashboard.js · chart.umd.min.js
+│
+├── 🧠 models/                            23 trained artifacts
+│   ├── xgboost_model.pkl                 production model (30 features)
+│   ├── shap_explainer.pkl · scaler.pkl · risk_engine_config.pkl
+│   ├── lightgbm · random_forest ⓛ · gradient_boosting · extra_trees · …
+│   └── lstm_model.pt · cnn_model.pt      + their scalers / configs
+│
+├── 📊 results/                           model outputs
+│   ├── final_risk_scores.csv ⓛ           risk score + tier for all 5.08M transactions
+│   ├── alerts.csv                        129,124 alerts
+│   ├── ml_comparison_results.csv · xgb_metrics.csv · shap_*.csv · cnn_* · lstm_*
+│   └── charts/                           37 notebook charts (+ eda_charts/)
+│
+├── 🗄️ data/
+│   ├── cleaned_transactions.csv ⓛ        5,078,336 cleaned transactions
+│   ├── precomputed/                      transactions_overview.parquet ⓛ · account_graph_flags.json
+│   ├── featured/                         feature + graph-feature names, transaction_graph.pkl
+│   └── preprocessed/                     feature_names.pkl · scaler.pkl
+│
+├── 🛠️ scripts/precompute_transactions.py rebuilds data/precomputed/
+├── 📚 docs/
+│   ├── assets/                           diagrams (light + dark SVG) and demo GIFs
+│   ├── screenshots/                      dashboard screenshots
+│   └── FinShieldAI_presentation.pptx · finshield_insights.pdf · who_benefits.pdf · logo.png
+│
+├── .gitattributes                        Git LFS rules
+├── .gitignore
 ├── requirements.txt
 ├── Dockerfile · Procfile · render.yaml
 └── README.md
 ```
 
-> **Large files aren't on GitHub.** Anything over GitHub's 100 MB limit (the cleaned dataset, feature tables, train/test splits, full risk-score tables, `random_forest.pkl`) is in `.gitignore`. Run the notebooks in order to regenerate them. The dashboard still starts without them, and each affected panel says what's missing.
+**ⓛ = stored with [Git LFS](https://git-lfs.com).** Run `git lfs install` before cloning so these download as real files instead of small pointers.
+
+> **Not on GitHub (too large):** `data/featured/*.csv`, `data/preprocessed/*.csv` and the biggest intermediate result tables (graph features, ensemble/master scores, XGBoost predictions), about 8 GB in total. They're training intermediates you can rebuild by running the notebooks in order. The dashboard doesn't need them.
 
 ---
 
 ## 🚀 Getting started
 
 ```bash
-git clone https://github.com/tjain2004/FINSHEILD-AI.git
-cd FINSHEILD-AI
+git lfs install                                   # once, so the large data files download
+git clone https://github.com/tjain2004/FinshieldAI.git
+cd FinshieldAI
 pip install -r requirements.txt
-python dashboard/new.py
+python new1/new1.py                               # new design  (or: python dashboard/new.py for the original layout)
 ```
 
-Open **http://localhost:5000**. The first start takes 20–40 seconds. The transaction index for the Workbench builds in the background and is cached after that.
+Open **http://localhost:5000**. Press **Ctrl+K** (⌘K on Mac) to jump to any page or look up a `TX-…`, `AML-…` or `ACC-…` ID. The first start takes 20–40 seconds. The transaction index for the Workbench builds in the background and is cached after that.
 
 <details>
 <summary><b>Deploy (Docker / Render / Heroku-style)</b></summary>
 
-All three configs start the same app:
+Start command for the new design:
 
 ```bash
-gunicorn --chdir dashboard new:app --workers 1 --threads 4 --timeout 180
+gunicorn --chdir new1 new1:app --workers 1 --threads 4 --timeout 180 --bind 0.0.0.0:$PORT
 ```
+
+`Dockerfile`, `Procfile` and `render.yaml` currently start the original layout (`--chdir dashboard new:app`). Swap in the command above to deploy the new design.
 
 ```bash
 docker build -t finshield-ai .
@@ -347,9 +404,10 @@ docker run -p 10000:10000 finshield-ai
 Today an analyst clicks through the Workbench. Next, **a team of AI agents does the legwork** using the same
 APIs FinShield already exposes, and **a human signs off** on every decision.
 
-<div align="center">
-<img src="docs/assets/agentic_future.svg" alt="Agentic AI future scope" width="100%"/>
-</div>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/agentic_future_dark.svg">
+  <img src="docs/assets/agentic_future.svg" alt="Agentic AI future scope" width="100%">
+</picture>
 
 | Agent | Job | Calls (already built) |
 |---|---|---|
