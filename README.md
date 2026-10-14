@@ -53,6 +53,8 @@ Criminals launder an estimated **2–5 % of global GDP every year** ([UNODC](htt
   <img src="docs/assets/problem_solution.svg" alt="The problem: each payment looks harmless on its own. The fix: the network shows the ring" width="100%">
 </picture>
 
+<div align="center"><sub>The same four payments around <code>ACC-448952</code>: scored one at a time they raise <b>0 alerts</b>; drawn as a network they close a laundering ring.</sub></div>
+
 ---
 
 ## 💡 How FinShield AI solves it
@@ -232,8 +234,10 @@ appears.** Click any of them and the map re-centres there, so you can walk the r
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/architecture_dark.svg">
-  <img src="docs/assets/architecture.svg" alt="System architecture" width="100%">
+  <img src="docs/assets/architecture.svg" alt="System architecture: IBM data, notebooks 01–10, saved artifacts, Flask serving layer and four user-facing tabs, with analyst decisions looping into the audit log" width="100%">
 </picture>
+
+<div align="center"><sub>Source → Pipeline → Artifacts → Serving → Interface. Moving dots show data flowing; the red dashed loop sends every analyst decision to the audit log.</sub></div>
 
 <details>
 <summary><b>How the serving layer is put together</b></summary>
@@ -252,7 +256,7 @@ appears.** Click any of them and the map re-centres there, so you can walk the r
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/pipeline_dark.svg">
-  <img src="docs/assets/pipeline.svg" alt="Project pipeline" width="100%">
+  <img src="docs/assets/pipeline.svg" alt="Project pipeline: ten notebooks run in order from cleaning to the risk engine" width="100%">
 </picture>
 
 | # | Notebook | What it does | Main output |
@@ -274,8 +278,17 @@ appears.** Click any of them and the map re-centres there, so you can walk the r
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/user_flow_dark.svg">
-  <img src="docs/assets/user_flow.svg" alt="User flow" width="100%">
+  <img src="docs/assets/user_flow.svg" alt="User flow: one entry point branching into Overview, User Portal, Investigation Workbench and Live Prediction journeys" width="100%">
 </picture>
+
+<div align="center"><sub>One shell, four journeys. Each line is a route through the app, and the moving dot is you.</sub></div>
+
+| Journey | Who | Steps |
+|---|---|---|
+| 🔵 **Overview** | analyst | search a `TX-` / `ACC-` ID → linked network → click a node to re-centre → spot the ring |
+| 🟢 **User Portal** | customer / bank ops | compose a payment → 30 features built → verdict `APPROVE · REVIEW · HOLD · BLOCK` → SHAP reasons → link security |
+| 🔴 **Investigation Workbench** | analyst | alert queue → case file → *Why flagged?* → linked accounts (1–2 hops) → confirm / escalate / dismiss → SAR + audit log |
+| 🟣 **Live Prediction** | anyone | enter features → score + tier → SHAP factors → SAR narrative |
 
 ---
 
@@ -328,8 +341,9 @@ FinshieldAI/
 │
 ├── 🛠️ scripts/precompute_transactions.py rebuilds data/precomputed/
 ├── 📚 docs/
-│   ├── assets/                           diagrams (light + dark SVG) and demo GIFs
+│   ├── assets/                           animated diagrams (light + dark SVG) and demo GIFs
 │   ├── screenshots/                      dashboard screenshots
+│   ├── make_diagrams.py                  regenerates every SVG in docs/assets/
 │   └── FinShieldAI_presentation.pptx · finshield_insights.pdf · who_benefits.pdf · logo.png
 │
 ├── .gitattributes                        Git LFS rules
@@ -406,7 +420,7 @@ APIs FinShield already exposes, and **a human signs off** on every decision.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/agentic_future_dark.svg">
-  <img src="docs/assets/agentic_future.svg" alt="Agentic AI future scope" width="100%">
+  <img src="docs/assets/agentic_future.svg" alt="Agentic AI future scope: an orchestrator and six agents calling existing FinShield APIs, with a human analyst approving every SAR" width="100%">
 </picture>
 
 | Agent | Job | Calls (already built) |
