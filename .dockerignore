@@ -1,0 +1,31 @@
+# ── Keep the Docker image small enough for Render's free plan (512 MB RAM) ──
+# These files are on GitHub (via Git LFS) for local use, but loading them on a
+# 512 MB server crashes it. Without them the app runs in "lite" mode: every
+# notebook tab, the User Portal and Live Prediction work; Workbench lookups
+# and the Overview transaction search say the data isn't available.
+# On a paid instance with 2–4 GB RAM, delete the "Large data" block below
+# to deploy the full app.
+
+.git
+.gitattributes
+**/__pycache__
+*.pyc
+.ipynb_checkpoints
+notebooks/
+docs/
+scripts/
+
+# Large data
+data/cleaned_transactions.csv
+data/featured/
+data/preprocessed/
+data/precomputed/*.parquet
+data/precomputed/*.npz
+data/precomputed/new_txn_index.json
+results/final_risk_scores.csv
+results/final_ensemble_risk_scores.csv
+results/master_risk_scores.csv
+results/graph_features.csv
+results/graph_node_analysis.csv
+results/xgb_predictions.csv
+models/random_forest.pkl

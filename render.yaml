@@ -1,10 +1,10 @@
 services:
   - type: web
     name: finshield-ai
-    runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --chdir dashboard new:app --workers 1 --threads 4 --timeout 180 --bind 0.0.0.0:$PORT
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     plan: free
+    healthCheckPath: /api/health
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.9
+      - key: MALLOC_ARENA_MAX
+        value: "2"
