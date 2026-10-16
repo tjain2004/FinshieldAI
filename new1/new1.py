@@ -19,7 +19,7 @@ its own files. new1.py only wraps the page that is served and adds:
   • logo.svg   — the FinShield AI logo (also the favicon)
 
 Files (all in new1/):
-  new1.py · new1.html · new1.js · logo.svg
+  new1.py · new1.html · new1.js · logo.svg · overview_lite.py
 
 Deploy:  gunicorn --chdir new1 new1:app --workers 1 --threads 4 --timeout 180
 """
@@ -38,6 +38,14 @@ from flask import Response, send_from_directory  # noqa: E402
 import new as ext  # noqa: E402  — dashboard/new.py (imports dashboard/app.py)
 
 app = ext.app
+
+# Overview index on small servers: if app.py couldn't load the big parquet,
+# memory-map data/precomputed/overview_lite/*.npy instead (see overview_lite.py).
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+import app as _core          # noqa: E402  — the same module new.py already imported
+import overview_lite         # noqa: E402
+print(f"  overview index: {overview_lite.attach(_core)}")
 
 NEW1_HTML = os.path.join(HERE, 'new1.html')
 NEW1_JS = os.path.join(HERE, 'new1.js')

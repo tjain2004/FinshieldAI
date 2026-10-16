@@ -2,6 +2,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# libgomp1 = OpenMP runtime needed by LightGBM (and used by XGBoost)
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
 # fewer malloc arenas = noticeably lower memory use for a threaded Flask app
 ENV PYTHONUNBUFFERED=1 MALLOC_ARENA_MAX=2
 

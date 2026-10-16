@@ -1,0 +1,25 @@
+{
+ "rows": 5078336,
+ "columns": {
+  "sender": "int32",
+  "receiver": "int32",
+  "sender_bank": "int32",
+  "receiver_bank": "int32",
+  "amount_paid": "float64",
+  "amount_received": "float64",
+  "pay_cur": "int8",
+  "recv_cur": "int8",
+  "self_transfer": "int8",
+  "cross_bank": "int8",
+  "currency_mismatch": "int8",
+  "label": "int8",
+  "risk_score": "float32"
+ },
+ "risk_levels": [
+  "CRITICAL",
+  "HIGH",
+  "LOW",
+  "MEDIUM"
+ ],
+ "source": "data/precomputed/transactions_overview.parquet"
+}
